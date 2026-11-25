@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#10131d" />
+  <title>Atlas do Saber — por DNZIN</title>
+
+  <style>
+    :root {
+      --bg: #10131d;
+      --panel: #191e2b;
+      --panel-light: #202738;
+      --text: #f1f3f9;
+      --muted: #a5aec0;
+      --accent: #9b87ff;
+      --accent-2: #55dbc1;
+      --border: rgba(255,255,255,.09);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 85% 5%, rgba(107, 83, 218, .16), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .splash {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(155,135,255,.22), transparent 25rem),
+        #10131d;
+      transition: opacity .5s ease, visibility .5s ease;
+    }
+
+    .splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .splash-content { text-align: center; }
+    .splash-mark {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 22px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 28px;
+      background: linear-gradient(135deg, #9b87ff, #55dbc1);
+      color: #10131d;
+      font-size: 28px;
+      font-weight: 900;
+      box-shadow: 0 18px 70px rgba(155,135,255,.25);
+    }
+
+    .splash h1 { margin: 0; font-size: clamp(2.2rem, 8vw, 4.5rem); letter-spacing: -.06em; }
+    .splash p { color: var(--muted); margin: 10px 0 24px; }
+    .primary-button, .secondary-button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 750;
+    }
+    .primary-button { background: var(--accent); color: #151321; }
+    .secondary-button { background: var(--panel-light); color: var(--text); }
+
+    .app { min-height: 100vh; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px max(20px, calc((100vw - 1240px) / 2));
+      border-bottom: 1px solid var(--border);
+      background: rgba(16,19,29,.88);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; min-width: max-content; }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #111522;
+      font-weight: 900;
+    }
+    .brand-name { font-weight: 850; letter-spacing: -.03em; }
+    .brand-by { color: var(--muted); font-size: 11px; }
+
+    .search-wrap { flex: 1; max-width: 620px; position: relative; }
+    .search-wrap input {
+      width: 100%;
+      padding: 12px 15px 12px 42px;
+      color: var(--text);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      outline: none;
+    }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-icon { position: absolute; left: 14px; top: 11px; color: var(--muted); }
+
+    .layout {
+      width: min(1240px, calc(100% - 40px));
+      margin: 28px auto 60px;
+      display: grid;
+      grid-template-columns: 235px minmax(0, 1fr);
+      gap: 28px;
+    }
+
+    aside { position: sticky; top: 86px; align-self: start; }
+    .side-label {
+      margin: 18px 10px 8px;
+      color: #78839a;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .nav-button {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      width: 100%;
+      margin: 3px 0;
+      padding: 11px 12px;
+      color: var(--muted);
+      text-align: left;
+      background: transparent;
+      border: 0;
+      border-radius: 12px;
+    }
+    .nav-button:hover, .nav-button.active {
+      color: var(--text);
+      background: var(--panel-light);
+    }
+    .nav-button.active { box-shadow: inset 3px 0 var(--accent); }
+
+    main { min-width: 0; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(24px, 5vw, 48px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 88% 20%, rgba(85,219,193,.19), transparent 15rem),
+        linear-gradient(135deg, #25243e, #191e2b 60%);
+    }
+    .eyebrow { color: var(--accent-2); font-size: 12px; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+    .hero h1 { max-width: 680px; margin: 12px 0; font-size: clamp(2rem, 5vw, 3.7rem); line-height: 1.04; letter-spacing: -.055em; }
+    .hero p { max-width: 590px; color: var(--muted); line-height: 1.7; }
+    .hero .primary-button { margin-top: 12px; }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 14px;
+      margin: 32px 0 15px;
+    }
+    .section-head h2 { margin: 0; font-size: 1.35rem; letter-spacing: -.03em; }
+    .section-head p { margin: 5px 0 0; color: var(--muted); font-size: .9rem; }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .category-card, .article-card, .course-card {
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+    .category-card {
+      min-height: 126px;
+      padding: 17px;
+      text-align: left;
+      transition: transform .18s, border-color .18s;
+    }
+    .category-card:hover, .article-card:hover, .course-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(155,135,255,.55);
+    }
+    .category-icon { font-size: 25px; }
+    .category-card h3 { margin: 12px 0 5px; font-size: 1rem; }
+    .category-card p { margin: 0; color: var(--muted); font-size: .82rem; }
+
+    .article-grid, .course-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+    }
+    .article-card {
+      min-height: 175px;
+      padding: 18px;
+      text-align: left;
+      transition: transform .18s, border-color .18s;
+    }
+    .article-card .meta, .article-meta { color: var(--muted); font-size: .78rem; }
+    .article-card h3 { margin: 13px 0 7px; font-size: 1.05rem; }
+    .article-card p { color: var(--muted); line-height: 1.55; margin: 0; font-size: .88rem; }
+    .tag {
+      display: inline-block;
+      padding: 5px 8px;
+      color: #d8d0ff;
+      background: rgba(155,135,255,.13);
+      border-radius: 999px;
+      font-size: .72rem;
+    }
+
+    .course-card { padding: 18px; }
+    .course-card h3 { margin: 12px 0 8px; }
+    .course-card p { color: var(--muted); line-height: 1.55; }
+    .progress-track { height: 6px; margin: 15px 0 8px; background: #30384a; border-radius: 99px; overflow: hidden; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .course-card small { color: var(--muted); }
+
+    .reader {
+      max-width: 850px;
+      margin: 0 auto;
+      padding: clamp(20px, 5vw, 48px);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--panel);
+    }
+    .reader h1 { margin: 16px 0 10px; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; letter-spacing: -.05em; }
+    .reader .article-meta { margin-bottom: 25px; }
+    .reader-content { color: #d5d9e4; font-size: 1.02rem; line-height: 1.85; }
+    .reader-content h2 { margin-top: 32px; color: var(--text); font-size: 1.35rem; }
+    .reader-content h3 { margin-top: 24px; color: var(--text); }
+    .reader-content li { margin: 8px 0; }
+    .reader-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .back-button { margin-bottom: 15px; }
+    .empty { padding: 32px; border: 1px dashed var(--border); border-radius: 16px; color: var(--muted); text-align: center; }
+
+    .account-button { white-space: nowrap; }
+    .auth-overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 18px; background: rgba(5,7,13,.78); backdrop-filter: blur(9px); }
+    .auth-overlay[hidden] { display: none; }
+    .auth-panel { position: relative; width: min(100%, 420px); padding: 28px; border: 1px solid var(--border); border-radius: 22px; background: var(--panel); box-shadow: 0 25px 90px rgba(0,0,0,.45); }
+    .auth-panel h2 { margin: 9px 0; font-size: 1.6rem; }
+    .auth-panel p { color: var(--muted); line-height: 1.5; }
+    .auth-close { position: absolute; top: 10px; right: 14px; border: 0; background: transparent; color: var(--muted); font-size: 28px; cursor: pointer; }
+    .auth-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 11px; margin-top: 20px; padding: 13px; border: 1px solid #dadce0; border-radius: 11px; background: #fff; color: #202124; font-weight: 650; cursor: pointer; }
+    .auth-google:disabled { opacity: .65; cursor: wait; }
+    .auth-message { min-height: 20px; margin-bottom: 0; font-size: .86rem; }
+    .auth-message.error { color: #ffaaa9; }
+    .auth-message.success { color: var(--accent-2); }
+    .auth-logout { width: 100%; margin-top: 14px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: transparent; color: var(--text); cursor: pointer; }
+    .mobile-nav { display: none; }
+    footer { padding: 24px; color: #7d879a; text-align: center; font-size: .82rem; }
+
+    @media (max-width: 800px) {
+      .topbar { flex-wrap: wrap; padding: 12px 16px; gap: 12px; }
+      .brand { flex: 1; }
+      .search-wrap { order: 3; flex-basis: 100%; max-width: none; }
+      .layout { width: min(100% - 28px, 680px); display: block; margin-top: 18px; }
+      aside { display: none; }
+      .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .mobile-nav {
+        position: fixed;
+        z-index: 4;
+        right: 0; bottom: 0; left: 0;
+        display: flex;
+        justify-content: space-around;
+        padding: 8px 5px calc(8px + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--border);
+        background: rgba(16,19,29,.95);
+        backdrop-filter: blur(15px);
+      }
+      .mobile-nav button {
+        display: grid;
+        gap: 3px;
+        justify-items: center;
+        padding: 6px 11px;
+        color: var(--muted);
+        background: none;
+        border: 0;
+        font-size: .68rem;
+      }
+      .mobile-nav button.active { color: var(--accent-2); }
+      footer { padding-bottom: 90px; }
+    }
+
+    @media (max-width: 520px) {
+      .article-grid, .course-grid { grid-template-columns: 1fr; }
+      .hero { border-radius: 18px; }
+      .category-card { min-height: 115px; padding: 13px; }
+      .section-head { align-items: start; flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="splash" id="splash" aria-label="Apresentação do criador">
+    <div class="splash-content">
+      <div class="splash-mark">D</div>
+      <h1>DNZIN</h1>
+      <p>Uma biblioteca para explorar o conhecimento do mundo.</p>
+      <button class="primary-button" id="enterButton">Entrar na biblioteca</button>
+    </div>
+  </section>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">A</div>
+        <div>
+          <div class="brand-name">Atlas do Saber</div>
+          <div class="brand-by">criado por DNZIN</div>
+        </div>
+      </div>
+
+      <label class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input id="searchInput" type="search" placeholder="Pesquise temas, artigos e cursos..." />
+      </label>
+      <button class="secondary-button account-button" id="accountButton" type="button">Entrar com Google</button>
+    </header>
+
+    <div class="layout">
+      <aside>
+        <div class="side-label">Biblioteca</div>
+        <button class="nav-button active" data-view="home">⌂ <span>Início</span></button>
+        <button class="nav-button" data-view="library">▤ <span>Explorar temas</span></button>
+        <button class="nav-button" data-view="courses">▣ <span>Trilhas de estudo</span></button>
+        <button class="nav-button" data-view="saved">♡ <span>Favoritos</span></button>
+
+        <div class="side-label">Áreas do saber</div>
+        <button class="nav-button category-link" data-category="Ciências da vida">◉ <span>Ciências da vida</span></button>
+        <button class="nav-button category-link" data-category="Universo">✦ <span>Universo</span></button>
+        <button class="nav-button category-link" data-category="Humanidade">◎ <span>Humanidade</span></button>
+        <button class="nav-button category-link" data-category="Mistérios">☼ <span>Mistérios</span></button>
+      </aside>
+
+      <main id="main"></main>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Navegação principal">
+      <button class="active" data-view="home"><span>⌂</span>Início</button>
+      <button data-view="library"><span>▤</span>Explorar</button>
+      <button data-view="courses"><span>▣</span>Trilhas</button>
+      <button data-view="saved"><span>♡</span>Favoritos</button>
+    </nav>
+
+    <footer>Atlas do Saber · Conhecimento para explorar, estudar e questionar.</footer>
+  </div>
+
+  <section class="auth-overlay" id="authOverlay" hidden>
+    <div class="auth-panel" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <button class="auth-close" id="authClose" type="button" aria-label="Fechar">×</button>
+      <div class="eyebrow">A tua área de aprendizagem</div>
+      <h2 id="authTitle">Entrar no Atlas do Saber</h2>
+      <p id="authDescription">Usa a tua conta Google para entrar e manter a tua sessão.</p>
+      <button class="auth-google" id="authGoogleButton" type="button">
+        <svg aria-hidden="true" width="19" height="19" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.25 5.48-4.72 7.18l7.62 5.91c4.45-4.11 7.14-10.16 7.14-17.56Z"/><path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.55 2.56 10.78l7.97-6.19Z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.89l-7.62-5.91c-2.12 1.42-4.84 2.27-8.28 2.27-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"/></svg>
+        Continuar com Google
+      </button>
+      <button class="auth-logout" id="authLogout" type="button" hidden>Terminar sessão</button>
+      <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://wbsfgejmxaobzvjeqlyg.supabase.co";
+    // Chave pública própria para uso no navegador. Nunca incluir chaves secretas neste ficheiro.
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_UndRtLBgBVKHAugY40X6IA_nz99ptXk";
+    const supabaseClient = window.supabase?.createClient
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+      : null;
+    let currentUser = null;
+
+    const articles = [
+      {
+        id: "celula",
+        title: "A célula: organização e funcionamento da vida",
+        category: "Ciências da vida",
+        icon: "🧬",
+        time: "12 min de leitura",
+        description: "Estruturas celulares, membranas, organelas e processos fundamentais.",
+        content: `
+          <p>A célula é a unidade estrutural e funcional básica dos seres vivos. Alguns organismos, como muitas bactérias, são formados por uma única célula. Outros, como seres humanos e árvores, são multicelulares e possuem células especializadas que trabalham em conjunto.</p>
+          <h2>Membrana plasmática</h2>
+          <p>A membrana plasmática delimita a célula e regula a troca de substâncias com o ambiente. É formada principalmente por uma bicamada de fosfolipídios, na qual estão inseridas proteínas. A membrana não é uma barreira totalmente fechada: ela seleciona o que entra e sai, participa da comunicação celular e ajuda a manter condições internas adequadas.</p>
+          <h2>Citoplasma e organelas</h2>
+          <p>O citoplasma compreende o material interno da célula, excluindo o núcleo nas células eucarióticas. Nele estão suspensas estruturas com funções específicas. Os ribossomos participam da produção de proteínas; o retículo endoplasmático atua na síntese e no transporte de moléculas; o complexo de Golgi modifica e distribui substâncias; e os lisossomos participam da digestão intracelular.</p>
+          <h2>Produção e uso de energia</h2>
+          <p>Nas células eucarióticas, as mitocôndrias participam da respiração celular, processo que transfere energia dos nutrientes para moléculas utilizáveis pela célula, especialmente o ATP. Nas plantas e em outros organismos fotossintetizantes, os cloroplastos captam energia luminosa e participam da produção de matéria orgânica a partir de água e dióxido de carbono.</p>
+          <h2>Material genético e divisão celular</h2>
+          <p>O DNA contém instruções hereditárias. Nas células eucarióticas, a maior parte do DNA fica no núcleo. A expressão dos genes orienta a produção de moléculas, incluindo proteínas, que influenciam a estrutura e o funcionamento celular. A divisão celular permite crescimento, renovação de tecidos e reprodução. A mitose distribui o material genético em células-filhas; a meiose está relacionada à formação de células reprodutivas em muitos organismos.</p>
+          <h2>Uma rede de processos</h2>
+          <p>As partes da célula não atuam isoladamente. A entrada de nutrientes, a produção de energia, a síntese de moléculas e a eliminação de resíduos estão conectadas. Alterações em um processo podem afetar outros, por isso o funcionamento celular depende de equilíbrio, comunicação e controle.</p>`
+      },
+      {
+        id: "universo",
+        title: "Como as estrelas nascem, vivem e morrem",
+        category: "Universo",
+        icon: "🌌",
+        time: "15 min de leitura",
+        description: "Da nuvem de gás ao ciclo de vida estelar e aos elementos químicos.",
+        content: `
+          <p>Estrelas são grandes esferas de plasma cuja energia é produzida principalmente por reações nucleares em seu interior. Seu nascimento, evolução e fim dependem sobretudo da massa inicial, embora também sejam influenciados pela composição química e pela interação com outros corpos.</p>
+          <h2>O nascimento em uma nebulosa</h2>
+          <p>Estrelas podem se formar em regiões densas de nuvens interestelares compostas principalmente por hidrogênio, além de hélio, poeira e outros elementos. A gravidade faz com que partes da nuvem colapsem. Durante o colapso, o material se aquece e pode formar uma protoestrela cercada por gás e poeira.</p>
+          <p>Quando o núcleo atinge temperatura e pressão suficientes, começa a fusão do hidrogênio em hélio. A energia liberada se opõe ao colapso gravitacional. O equilíbrio entre gravidade e pressão sustenta a estrela durante uma parte importante de sua existência.</p>
+          <h2>A sequência principal</h2>
+          <p>Uma estrela passa a maior parte de sua vida na chamada sequência principal, fase em que converte hidrogênio em hélio no núcleo. Estrelas mais massivas costumam consumir seu combustível mais rapidamente e, apesar de conterem mais matéria, vivem menos tempo do que estrelas de baixa massa.</p>
+          <h2>Os diferentes destinos</h2>
+          <p>Quando o hidrogênio central se esgota, a estrutura da estrela muda. Uma estrela parecida com o Sol pode se expandir para uma gigante vermelha, perder suas camadas externas e deixar um núcleo remanescente chamado anã branca. Estrelas muito mais massivas podem desenvolver núcleos sucessivos de elementos e terminar em uma supernova. Dependendo da massa restante, o objeto compacto pode se tornar uma estrela de nêutrons ou um buraco negro.</p>
+          <h2>Elementos e evolução cósmica</h2>
+          <p>A fusão estelar produz alguns elementos mais leves a partir de outros mais simples. Explosões estelares e outros eventos cósmicos espalham matéria pelo espaço. Essa matéria pode integrar novas nuvens, planetas e futuras gerações de estrelas. Assim, a história das estrelas está ligada à evolução química do Universo.</p>`
+      },
+      {
+        id: "anatomia",
+        title: "Anatomia humana: uma visão dos sistemas do corpo",
+        category: "Humanidade",
+        icon: "🫀",
+        time: "18 min de leitura",
+        description: "Como os principais sistemas do organismo se relacionam para manter a vida.",
+        content: `
+          <p>A anatomia estuda as estruturas do corpo e as relações entre elas. Para facilitar o estudo, o organismo costuma ser dividido em sistemas. Essa divisão é didática: no corpo vivo, os sistemas cooperam continuamente.</p>
+          <h2>Sistema circulatório</h2>
+          <p>O coração impulsiona o sangue por uma rede de vasos. O sangue transporta oxigênio, nutrientes, hormônios e produtos que precisam ser removidos. Artérias conduzem sangue para fora do coração, veias o levam de volta e capilares permitem trocas entre o sangue e os tecidos.</p>
+          <h2>Sistema respiratório</h2>
+          <p>O ar percorre vias respiratórias até chegar aos pulmões. Nos alvéolos, estruturas de paredes finas, ocorre a troca de gases entre o ar e o sangue: o oxigênio passa para o sangue e o dióxido de carbono pode ser eliminado na expiração. A respiração depende da ação coordenada dos músculos respiratórios e do sistema nervoso.</p>
+          <h2>Sistema digestório</h2>
+          <p>O sistema digestório transforma alimentos em moléculas que podem ser absorvidas. A digestão começa na boca, continua pelo esôfago, estômago e intestino delgado, e envolve órgãos acessórios, como fígado e pâncreas. Grande parte da absorção de nutrientes ocorre no intestino delgado; o intestino grosso participa da absorção de água e da formação das fezes.</p>
+          <h2>Sistema nervoso e sistema endócrino</h2>
+          <p>O sistema nervoso recebe informações, processa sinais e coordena respostas rápidas. O sistema endócrino libera hormônios que regulam atividades como crescimento, metabolismo e reprodução. Os dois sistemas interagem e ajudam a manter a homeostase, isto é, condições internas relativamente estáveis.</p>
+          <h2>O corpo como conjunto</h2>
+          <p>Durante uma atividade física, por exemplo, músculos demandam mais energia. O coração pode bater mais rápido, a respiração se intensifica e mecanismos nervosos e hormonais ajustam o funcionamento do organismo. A saúde depende da interação entre sistemas e também é influenciada por fatores ambientais, sociais e comportamentais.</p>`
+      },
+      {
+        id: "memoria",
+        title: "Memória humana: como lembramos e esquecemos",
+        category: "Humanidade",
+        icon: "🧠",
+        time: "11 min de leitura",
+        description: "Processos de atenção, aprendizagem, armazenamento e recuperação.",
+        content: `
+          <p>Memória não é um arquivo único que guarda cópias perfeitas do passado. É um conjunto de processos que permite adquirir, conservar e recuperar informações. Lembranças podem ser influenciadas por atenção, conhecimento prévio, contexto e experiências posteriores.</p>
+          <h2>Etapas da memória</h2>
+          <p>Uma descrição comum separa a memória em codificação, armazenamento e recuperação. Na codificação, a informação é processada. No armazenamento, mudanças mantêm essa informação ao longo do tempo. Na recuperação, ela volta a ser acessível. Essas etapas se sobrepõem e dependem de diferentes redes cerebrais.</p>
+          <h2>Tipos de memória</h2>
+          <p>A memória de trabalho mantém e manipula temporariamente informações, como quando fazemos cálculo mental. A memória episódica está ligada a acontecimentos vividos; a semântica, a fatos e conceitos; e a procedural, a habilidades aprendidas, como tocar um instrumento. Essas categorias ajudam a estudar a memória, mas não funcionam como compartimentos completamente isolados.</p>
+          <h2>Aprendizagem, sono e esquecimento</h2>
+          <p>Revisar uma informação em diferentes momentos e tentar recuperá-la ativamente pode favorecer a aprendizagem duradoura. O sono também participa da consolidação de algumas memórias. Esquecer pode ocorrer porque a informação perdeu acessibilidade, sofreu interferência de outras informações ou não foi bem codificada. Em muitos casos, o esquecimento é uma característica normal, não necessariamente um sinal de doença.</p>
+          <h2>Memória não é gravação</h2>
+          <p>Ao recordar, reconstruímos informações com base em fragmentos, expectativas e conhecimentos atuais. Isso torna a memória útil e flexível, mas também sujeita a erros. Por esse motivo, uma lembrança sincera não é automaticamente um registro exato de todos os detalhes de um acontecimento.</p>`
+      },
+      {
+        id: "paradoxo",
+        title: "Paradoxos: quando uma ideia desafia a intuição",
+        category: "Mistérios",
+        icon: "🌀",
+        time: "9 min de leitura",
+        description: "O que é um paradoxo e como ele ajuda a examinar argumentos.",
+        content: `
+          <p>Um paradoxo é uma situação, argumento ou resultado que parece contradizer a intuição ou produzir uma contradição. Alguns paradoxos decorrem de ambiguidades na linguagem; outros revelam pressupostos ocultos, limites de teorias ou problemas genuínos ainda em investigação.</p>
+          <h2>Paradoxos lógicos</h2>
+          <p>Paradoxos lógicos mostram que certas regras, quando aplicadas sem cuidado, podem levar a conclusões incompatíveis. Eles são importantes porque obrigam a examinar definições, formas de raciocínio e os limites de sistemas formais.</p>
+          <h2>Paradoxos científicos</h2>
+          <p>Na ciência, chamar algo de paradoxo não significa que seja sobrenatural. Pode indicar que uma observação parece entrar em conflito com uma explicação existente. A investigação então verifica medições, condições do experimento e hipóteses usadas. Às vezes, o aparente conflito desaparece; em outros casos, ele contribui para o desenvolvimento de uma teoria melhor.</p>
+          <h2>Como analisar um paradoxo</h2>
+          <ul>
+            <li>Defina os termos principais com precisão.</li>
+            <li>Identifique as premissas usadas no argumento.</li>
+            <li>Verifique se há ambiguidades ou informações omitidas.</li>
+            <li>Separe uma contradição real de algo apenas surpreendente.</li>
+            <li>Procure exemplos e contraexemplos.</li>
+          </ul>
+          <p>Paradoxos são ferramentas para pensar com mais cuidado. Nem todo enigma tem uma solução simples, e alguns dependem de convenções específicas. O valor está também em aprender a formular melhor as perguntas.</p>`
+      },
+      {
+        id: "evolucao",
+        title: "Evolução biológica e diversidade da vida",
+        category: "Ciências da vida",
+        icon: "🌿",
+        time: "14 min de leitura",
+        description: "Variação hereditária, seleção natural e mudanças em populações.",
+        content: `
+          <p>Evolução biológica é a mudança das características hereditárias de populações ao longo das gerações. Ela explica padrões de diversidade e parentesco entre organismos. A evolução não tem um objetivo predeterminado: os resultados dependem de variação, hereditariedade, ambiente e processos populacionais.</p>
+          <h2>Variação e hereditariedade</h2>
+          <p>Indivíduos de uma população diferem em muitas características. Parte dessas diferenças pode ser herdada. Mutações geram novas variantes genéticas, e a recombinação reorganiza variantes durante a reprodução sexuada. Nem toda variação afeta a sobrevivência ou a reprodução.</p>
+          <h2>Seleção natural</h2>
+          <p>Quando uma característica hereditária influencia o sucesso reprodutivo em determinado ambiente, sua frequência pode mudar ao longo das gerações. Isso é seleção natural. Uma característica vantajosa em certo contexto pode não ser vantajosa em outro: o ambiente inclui fatores físicos, outros organismos e condições que variam no tempo.</p>
+          <h2>Outros processos evolutivos</h2>
+          <p>A deriva genética é a mudança aleatória na frequência de variantes, especialmente relevante em populações pequenas. O fluxo gênico ocorre quando indivíduos ou gametas se deslocam entre populações. Mutação, seleção natural, deriva e fluxo gênico podem atuar simultaneamente.</p>
+          <h2>Adaptação e ancestralidade</h2>
+          <p>Uma adaptação é uma característica herdável que se tornou comum por contribuir para o sucesso reprodutivo em uma história ambiental específica. A evidência de evolução vem de diferentes áreas, incluindo genética, fósseis, biogeografia e observação de populações atuais. A semelhança entre organismos pode revelar ancestralidade compartilhada, sem significar que uma espécie atual tenha se transformado diretamente em outra espécie atual.</p>`
+      }
+    ];
+
+    const categories = [
+      { name: "Ciências da vida", icon: "🧬", desc: "Biologia, anatomia e ecologia" },
+      { name: "Universo", icon: "🌌", desc: "Astronomia, espaço e física" },
+      { name: "Humanidade", icon: "🧠", desc: "Corpo, mente, história e sociedade" },
+      { name: "Mistérios", icon: "🌀", desc: "Perguntas, enigmas e investigações" },
+      { name: "Tecnologia", icon: "⚙️", desc: "Invenções, computação e futuro" },
+      { name: "Terra", icon: "🌍", desc: "Geologia, clima e oceanos" }
+    ];
+
+    const courses = [
+      { id: "bio", title: "Fundamentos da Biologia", icon: "🧬", category: "Ciências da vida", description: "Uma trilha introdutória sobre células, organismos, evolução e ecossistemas.", lessons: ["A célula", "Evolução biológica"] },
+      { id: "cosmos", title: "Primeiros passos no Universo", icon: "🔭", category: "Universo", description: "Explore estrelas, galáxias e as grandes escalas do cosmos.", lessons: ["Como as estrelas nascem"] },
+      { id: "mente", title: "Corpo e mente humanos", icon: "🧠", category: "Humanidade", description: "Conheça sistemas do corpo e processos ligados à memória.", lessons: ["Anatomia humana", "Memória humana"] }
+    ];
+
+    const main = document.getElementById("main");
+    const searchInput = document.getElementById("searchInput");
+    let currentView = "home";
+    let previousView = "home";
+    let currentCategory = "";
+
+    const getSaved = () => JSON.parse(localStorage.getItem("atlas-favorites") || "[]");
+    const setSaved = list => localStorage.setItem("atlas-favorites", JSON.stringify(list));
+    const getProgress = () => JSON.parse(localStorage.getItem("atlas-progress") || "{}");
+
+    function articleCard(article) {
+      return `
+        <button class="article-card" data-article="${article.id}">
+          <span class="tag">${article.icon} ${article.category}</span>
+          <h3>${article.title}</h3>
+          <p>${article.description}</p>
+          <div class="meta" style="margin-top:14px">${article.time} →</div>
+        </button>`;
+    }
+
+    function renderHome() {
+      main.innerHTML = `
+        <section class="hero">
+          <div class="eyebrow">Conhecimento sem fronteiras</div>
+          <h1>O mundo é grande.<br>Comece por uma pergunta.</h1>
+          <p>Explore ciências, humanidade, natureza e universo. Encontre artigos para ler com calma e trilhas para organizar seus estudos.</p>
+          <button class="primary-button" data-view="library">Explorar a biblioteca →</button>
+        </section>
+
+        <section>
+          <div class="section-head"><div><h2>Explore por área</h2><p>Escolha um caminho para começar.</p></div></div>
+          <div class="category-grid">
+            ${categories.map(c => `
+              <button class="category-card" data-category="${c.name}">
+                <div class="category-icon">${c.icon}</div>
+                <h3>${c.name}</h3><p>${c.desc}</p>
+              </button>`).join("")}
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head"><div><h2>Para começar a explorar</h2><p>Artigos disponíveis na biblioteca.</p></div></div>
+          <div class="article-grid">${articles.slice(0, 4).map(articleCard).join("")}</div>
+        </section>`;
+    }
+
+    function renderLibrary() {
+      const query = searchInput.value.trim().toLowerCase();
+      let results = articles.filter(a => {
+        const matchesCategory = !currentCategory || a.category === currentCategory;
+        const matchesQuery = !query || `${a.title} ${a.category} ${a.description} ${a.content}`.toLowerCase().includes(query);
+        return matchesCategory && matchesQuery;
+      });
+
+      main.innerHTML = `
+        <div class="section-head">
+          <div>
+            <h2>${currentCategory || (query ? "Resultados da pesquisa" : "Explorar a biblioteca")}</h2>
+            <p>${results.length} artigo${results.length === 1 ? "" : "s"} encontrado${results.length === 1 ? "" : "s"}.</p>
+          </div>
+          ${currentCategory ? '<button class="secondary-button" data-clear-category>Limpar filtro</button>' : ""}
+        </div>
+        ${results.length
+          ? `<div class="article-grid">${results.map(articleCard).join("")}</div>`
+          : `<div class="empty">Nenhum artigo encontrado. Tente outra palavra ou área.</div>`}`;
+    }
+
+    function renderCourses() {
+      const progress = getProgress();
+      main.innerHTML = `
+        <section class="hero">
+          <div class="eyebrow">Aprenda passo a passo</div>
+          <h1>Trilhas de estudo</h1>
+          <p>Organize sua aprendizagem por tema. O progresso fica salvo neste dispositivo.</p>
+        </section>
+        <div class="section-head"><div><h2>Escolha uma trilha</h2><p>Abra as aulas e acompanhe seu avanço.</p></div></div>
+        <div class="course-grid">
+          ${courses.map(course => {
+            const done = progress[course.id] || [];
+            const percent = Math.round(done.length / course.lessons.length * 100);
+            return `<article class="course-card">
+              <span class="tag">${course.icon} ${course.category}</span>
+              <h3>${course.title}</h3>
+              <p>${course.description}</p>
+              <div class="progress-track"><div class="progress-bar" style="width:${percent}%"></div></div>
+              <small>${done.length} de ${course.lessons.length} aulas concluídas · ${percent}%</small>
+              <div style="margin-top:15px;display:grid;gap:8px">
+                ${course.lessons.map(id => {
+                  const article = articles.find(a => a.id === id);
+                  const checked = done.includes(id);
+                  return `<button class="secondary-button" style="text-align:left" data-lesson="${id}" data-course="${course.id}">
+                    ${checked ? "✓" : "○"} ${article ? article.title : id}
+                  </button>`;
+                }).join("")}
+              </div>
+            </article>`;
+          }).join("")}
+        </div>`;
+    }
+
+    function renderSaved() {
+      const saved = getSaved();
+      const items = articles.filter(a => saved.includes(a.id));
+      main.innerHTML = `
+        <div class="section-head"><div><h2>Seus favoritos</h2><p>Artigos guardados neste dispositivo.</p></div></div>
+        ${items.length ? `<div class="article-grid">${items.map(articleCard).join("")}</div>` : `<div class="empty">Você ainda não salvou artigos. Abra um artigo e toque em “Salvar nos favoritos”.</div>`}`;
+    }
+
+    function openArticle(id) {
+      const article = articles.find(a => a.id === id);
+      if (!article) return;
+      previousView = currentView === "article" ? previousView : currentView;
+      currentView = "article";
+      const isSaved = getSaved().includes(id);
+      main.innerHTML = `
+        <button class="secondary-button back-button" data-back>← Voltar</button>
+        <article class="reader">
+          <span class="tag">${article.icon} ${article.category}</span>
+          <h1>${article.title}</h1>
+          <div class="article-meta">${article.time} · Atlas do Saber</div>
+          <div class="reader-content">${article.content}</div>
+          <div class="reader-actions">
+            <button class="primary-button" data-favorite="${article.id}">${isSaved ? "♥ Remover dos favoritos" : "♡ Salvar nos favoritos"}</button>
+            <button class="secondary-button" data-share="${article.id}">Compartilhar</button>
+          </div>
+        </article>`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function setView(view) {
+      currentView = view;
+      currentCategory = "";
+      document.querySelectorAll("[data-view]").forEach(button => {
+        button.classList.toggle("active", button.dataset.view === view);
+      });
+
+      if (view === "home") renderHome();
+      else if (view === "library") renderLibrary();
+      else if (view === "courses") renderCourses();
+      else if (view === "saved") renderSaved();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.addEventListener("click", event => {
+      const articleButton = event.target.closest("[data-article]");
+      const viewButton = event.target.closest("[data-view]");
+      const categoryButton = event.target.closest("[data-category]");
+      const favoriteButton = event.target.closest("[data-favorite]");
+      const backButton = event.target.closest("[data-back]");
+      const shareButton = event.target.closest("[data-share]");
+      const lessonButton = event.target.closest("[data-lesson]");
+
+      if (articleButton) openArticle(articleButton.dataset.article);
+
+      if (viewButton) setView(viewButton.dataset.view);
+
+      if (categoryButton) {
+        currentView = "library";
+        currentCategory = categoryButton.dataset.category;
+        renderLibrary();
+        document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === "library"));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      if (event.target.closest("[data-clear-category]")) {
+        currentCategory = "";
+        renderLibrary();
+      }
+
+      if (favoriteButton) {
+        const id = favoriteButton.dataset.favorite;
+        let saved = getSaved();
+        saved = saved.includes(id) ? saved.filter(item => item !== id) : [...saved, id];
+        setSaved(saved);
+        openArticle(id);
+      }
+
+      if (backButton) setView(previousView);
+
+      if (shareButton) {
+        const article = articles.find(a => a.id === shareButton.dataset.share);
+        if (navigator.share) {
+          navigator.share({ title: article.title, text: article.description, url: location.href }).catch(() => {});
+        } else {
+          navigator.clipboard?.writeText(`${article.title} — ${location.href}`);
+          shareButton.textContent = "Link copiado";
+        }
+      }
+
+      if (lessonButton) {
+        const progress = getProgress();
+        const courseId = lessonButton.dataset.course;
+        const lessonId = lessonButton.dataset.lesson;
+        const done = progress[courseId] || [];
+        progress[courseId] = done.includes(lessonId) ? done.filter(id => id !== lessonId) : [...done, lessonId];
+        localStorage.setItem("atlas-progress", JSON.stringify(progress));
+        openArticle(lessonId);
+      }
+    });
+
+    searchInput.addEventListener("input", () => {
+      if (currentView === "article") return;
+      currentView = "library";
+      currentCategory = "";
+      renderLibrary();
+    });
+
+    document.getElementById("enterButton").addEventListener("click", () => {
+      document.getElementById("splash").classList.add("hidden");
+    });
+
+    const authOverlay = document.getElementById("authOverlay");
+    const authMessage = document.getElementById("authMessage");
+    function showAuthMessage(message, type = "") {
+      authMessage.textContent = message;
+      authMessage.className = "auth-message" + (type ? " " + type : "");
+    }
+    function updateAccountUI() {
+      const button = document.getElementById("accountButton");
+      button.textContent = currentUser ? (currentUser.email || "Conta Google") : "Entrar com Google";
+      document.getElementById("authTitle").textContent = currentUser ? "A tua conta" : "Entrar no Atlas do Saber";
+      document.getElementById("authDescription").textContent = currentUser
+        ? "A tua sessão Google está ativa neste dispositivo."
+        : "Usa a tua conta Google para entrar no Atlas do Saber.";
+      document.getElementById("authGoogleButton").hidden = !!currentUser;
+      document.getElementById("authLogout").hidden = !currentUser;
+    }
+    document.getElementById("accountButton").addEventListener("click", () => {
+      authOverlay.hidden = false;
+      showAuthMessage("");
+    });
+    document.getElementById("authClose").addEventListener("click", () => authOverlay.hidden = true);
+    authOverlay.addEventListener("click", e => { if (e.target === authOverlay) authOverlay.hidden = true; });
+    document.getElementById("authGoogleButton").addEventListener("click", async () => {
+      if (!supabaseClient) return showAuthMessage("Não foi possível iniciar a ligação ao Supabase.", "error");
+      const button = document.getElementById("authGoogleButton");
+      button.disabled = true;
+      showAuthMessage("A redirecionar para o Google...");
+      try {
+        const redirectTo = window.location.origin + window.location.pathname;
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: "google", options: { redirectTo }
+        });
+        if (error) throw error;
+      } catch (error) {
+        showAuthMessage(error.message || "Não foi possível iniciar a autenticação Google.", "error");
+        button.disabled = false;
+      }
+    });
+    document.getElementById("authLogout").addEventListener("click", async () => {
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) showAuthMessage(error.message, "error");
+      else authOverlay.hidden = true;
+    });
+    if (supabaseClient) {
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        currentUser = session?.user || null;
+        updateAccountUI();
+        if (currentUser) showAuthMessage("Sessão iniciada com sucesso.", "success");
+      });
+      supabaseClient.auth.getSession().then(({ data, error }) => {
+        if (error) console.error("Erro ao recuperar sessão:", error);
+        currentUser = data?.session?.user || null;
+        updateAccountUI();
+      });
+    } else {
+      showAuthMessage("A biblioteca de autenticação não carregou. Verifica a internet.", "error");
+    }
+
+    setTimeout(() => document.getElementById("splash").classList.add("hidden"), 3500);
+    renderHome();
+  </script>
+</body>
+</html>
